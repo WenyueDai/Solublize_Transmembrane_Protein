@@ -1,4 +1,12 @@
-# step 1. VScode with wsl
+
+# Description
+1. step0_clean.py clean and renumber pdb/cif
+2. step1_solublempnn_fix.py Use solubleMPNN to redesign transmembrane protein (non-fixed position)
+3. step2_pyrosetta_map.py Use pyrosetta to repack sequence to the input pdb
+4. Optional for future: chai-1 structural prediction
+
+# Instruction for new starters
+## step 1. VScode with wsl
 
 1. Search for powershell, run as administrator.
 2. wsl --install #Run this to install wsl and ubuntus (default)
@@ -19,13 +27,12 @@ cd ~/test_project
 git config --global user.name "Your Name"
 git config --global user.email "your@email.com"
 
-# step 2. conda env mlfold for pdb preparation and solublempnn
+## step 2. conda env mlfold for pdb preparation and solublempnn
 conda create -n mlfold python=3.10 -y
 conda activate mlfold
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 pip install numpy biopython pandas tqdm matplotlib
 
-# step 3. conda env getcontact for pyrosetta repack
+## step 3. conda env getcontact for pyrosetta repack
 Go to https://www.pyrosetta.org/downloads/windows-10 and fill out the form for a free academic license for PyRosetta
-
 conda install pyrosetta --channel https://<username>:<password>@conda.gralab.jhu.edu
