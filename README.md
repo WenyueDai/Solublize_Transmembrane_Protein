@@ -4,6 +4,7 @@
 2. step1_solublempnn_fix.py Use solubleMPNN to redesign transmembrane protein (non-fixed position)
 3. step2_pyrosetta_map.py Use pyrosetta to repack sequence to the input pdb
 4. Optional for future: chai-1 structural prediction
+5. Optional OPENMM OR Positioning of proteins in membranes
 
 # Instruction for new starters
 ## step 1. VScode with wsl
