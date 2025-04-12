@@ -12,6 +12,7 @@ from openmm.app import PDBFile
 folder_with_pdbs = "/home/eva/0_solubilize_transmembrane/6LN2" #Change it to the folder where pdb is downloaded
 clean_pdbs_dir = os.path.join(folder_with_pdbs, "clean") #The folder with cleaned pdb
 chains_to_keep = "A,B,C,D,E,F,G,H" #Chain to keep during pdb clean up. Change to A will delete all the other chains.
+chain_to_cal_hydro_sasa = "A" #Chain to calculate hydrophobic and sasa, can analysis multiple chain like A,B
 
 os.makedirs(clean_pdbs_dir, exist_ok=True)
 
@@ -150,3 +151,103 @@ def batch_process_structures(input_folder, clean_folder, chains_to_keep=None):
     print("All structures processed.\n")
     
 batch_process_structures(folder_with_pdbs, clean_pdbs_dir, chains_to_keep)
+
+# === ANALYZE RELATIVE SASA + HYDROPHOBICITY ===
+# Eisenberg hydrophobicity scale
+def analyze_sasa_and_hydrophobicity(obj_name, output_txt_path, chains_to_analyze, sasa_threshold=0.5, hydro_threshold=0, hydro_sasa_threthod=0.2):
+    hydrophobicity_eisenberg = {
+        'ALA': 0.25, 'ARG': -1.76, 'ASN': -0.64, 'ASP': -0.72,
+        'CYS': 0.04, 'GLN': -0.69, 'GLU': -0.62, 'GLY': 0.16,
+        'HIS': -0.40, 'ILE': 0.73, 'LEU': 0.53, 'LYS': -1.10,
+        'MET': 0.26, 'PHE': 0.61, 'PRO': -0.07, 'SER': -0.26,
+        'THR': -0.18, 'TRP': 0.37, 'TYR': 0.02, 'VAL': 0.54
+    }
+
+    # Convert string like "B,C,D" to list ['B', 'C', 'D']
+    chains = [c.strip() for c in chains_to_analyze.split(',') if c.strip()]
+    chain_selection = " or ".join([f"chain {c}" for c in chains])
+    selection_str = f"{obj_name} and ({chain_selection})"
+
+    # Step 1: Calculate per-residue relative SASA
+    sasa_dic = cmd.get_sasa_relative(selection=selection_str, state=1)
+
+    # Step 2: Get unique residues (resi, resn, chain)
+    unique_residues = set()
+    cmd.iterate(selection_str, "unique_residues.add((resi, resn, chain))", space={"unique_residues": unique_residues})
+
+    # Step 3: Process each residue
+    residue_data = []
+    chain_resi_list = {}
+    skipped_missing_sasa = 0
+    skipped_below_threshold = 0
+    skipped_nonhydrophobic = 0
+
+    for resi, resn, chain in sorted(unique_residues, key=lambda x: (int(x[0]), x[1], x[2])):
+        sasa = None
+        for (model, segi, c, r), s in sasa_dic.items():
+            if c == chain and r == resi:
+                sasa = s
+                break
+
+        if sasa is None:
+            print(f"Skipping {chain}:{resi} ({resn}) — SASA not found")
+            skipped_missing_sasa += 1
+            continue
+
+        if sasa < sasa_threshold:
+            skipped_below_threshold += 1
+            continue
+
+        resn_upper = resn.upper()
+        hydro_score = hydrophobicity_eisenberg.get(resn_upper)
+        if hydro_score is None:
+            continue
+
+        if hydro_score <= hydro_threshold:
+            skipped_nonhydrophobic += 1
+            continue
+
+        hydro_sasa = hydro_score * sasa
+
+        if hydro_sasa > hydro_sasa_threthod:
+            print(f"Keeping {chain}:{resi} ({resn}) — SASA={sasa:.2f}, Hydrophobicity={hydro_score:.2f}")
+            residue_data.append((chain, resn_upper, resi, sasa, hydro_score, hydro_sasa))
+
+    print(f"\nSummary:")
+    print(f" Kept residues: {len(residue_data)}")
+    print(f" Skipped (no SASA): {skipped_missing_sasa}")
+    print(f" Skipped (below SASA threshold): {skipped_below_threshold}")
+    print(f" Skipped (non-hydrophobic): {skipped_nonhydrophobic}")
+
+    residue_data.sort(key=lambda x: (-x[5], -x[4], -x[3], x[0], int(x[2]), x[1]))
+    for chain, _, resi, _, _, _ in residue_data:
+        chain_resi_list.setdefault(chain, []).append(int(resi))
+    for chain in sorted(chain_resi_list):
+        resi_list = " ".join(str(r) for r in chain_resi_list[chain])
+        print(f'  "{chain}": [{resi_list}]')
+
+    with open(output_txt_path, 'w') as f:
+        f.write("sasa_threshold=0.5, hydro_threshold=0, hydro_sasa_threthod=0.2")
+        f.write("Chain:Resi:Resn\tRela_SASA*Hydro\tRelative_SASA\tHydrophobicity\n")
+        for chain, resn_upper, resi, sasa, hydro_score, hydro_sasa in residue_data:
+            f.write(f"{chain}:{resi}:{resn_upper}\t{hydro_sasa:.2f}\t{sasa:.2f}\t{hydro_score:.2f}\n")
+        for chain in sorted(chain_resi_list):
+            resi_list = " ".join(str(r) for r in chain_resi_list[chain])
+            f.write(f'  "{chain}": [{resi_list}]')
+
+    print(f"[DEBUG] Written results to: {output_txt_path}")
+    cmd.delete("all")
+
+
+# === RUN ANALYSIS FOR EACH CLEANED PDB ===
+
+# Loop through cleaned files
+for cleaned_file in os.listdir(clean_pdbs_dir):
+    if cleaned_file.endswith(".pdb"):
+        pdb_path = os.path.join(clean_pdbs_dir, cleaned_file)
+        obj_name = os.path.splitext(cleaned_file)[0]
+        output_txt = pdb_path.replace(".pdb", "_sasa_hydro.txt")
+        cmd.load(pdb_path, obj_name)
+        analyze_sasa_and_hydrophobicity(obj_name, output_txt, chains_to_analyze=chain_to_cal_hydro_sasa)
+
+

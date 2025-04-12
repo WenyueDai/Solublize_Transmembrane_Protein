@@ -27,18 +27,31 @@ def one_letter_to_three(letter):
 
 def parse_fasta_sequences_with_chain_split(fasta_path):
     """
-    Split the single sequence from solublempnn based on '/'
+    Parse sequences and headers, splitting sequence by chain using '/'
     """
     sequences = []
+    current_header = ""
     with open(fasta_path, 'r') as f:
         for line in f:
             if line.startswith('>'):
-                continue
-            full_sequence = line.strip()
-            split_by_chain = full_sequence.split('/')
-            sequences.append(split_by_chain)
-    # print(f"sequence after split: {sequences}")
+                current_header = line.strip()
+            else:
+                full_sequence = line.strip()
+                split_by_chain = full_sequence.split('/')
+                sequences.append((current_header, split_by_chain))
     return sequences
+
+def extract_sample_number(header):
+    """
+    Extract sample number from header like:
+    >T=0.2, sample=4, score=1.9392 ...
+    """
+    for part in header.split(','):
+        part = part.strip()
+        if part.startswith("sample="):
+            return part.split('=')[1]
+    return "wt"
+
 
 def get_chain_order_from_pdb(pdb_path):
     pose = pose_from_pdb(pdb_path)
@@ -93,17 +106,19 @@ def batch_mutate_all_fasta_sequences(fasta_path, pdb_path, output_folder):
     all_chain_sequences = parse_fasta_sequences_with_chain_split(fasta_path)
     chain_ids = get_chain_order_from_pdb(pdb_path)
 
-    for i, chain_seqs in enumerate(all_chain_sequences):
+    for i, (header, chain_seqs) in enumerate(all_chain_sequences):
         if len(chain_seqs) != len(chain_ids):
             print(f"Sequence {i+1} has {len(chain_seqs)} chains but PDB has {len(chain_ids)} — skipping.")
             continue
 
-        output_filename = f"{os.path.splitext(os.path.basename(pdb_path))[0]}_sample{i+1}.pdb"
+        sample_id = extract_sample_number(header)
+        output_filename = f"{os.path.splitext(os.path.basename(pdb_path))[0]}_sample{sample_id}.pdb"
         out_path = os.path.join(output_folder, output_filename)
+
         try:
             process_pdb_with_chain_sequences(pdb_path, chain_seqs, chain_ids, out_path)
         except Exception as e:
-            print(f"Failed to process sequence {i+1}: {e}")
+            print(f"Failed to process sequence sample={sample_id}: {e}")
 
 
 batch_mutate_all_fasta_sequences(fasta_path, pdb_path, output_folder)

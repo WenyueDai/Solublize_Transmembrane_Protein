@@ -20,7 +20,8 @@ chain_to_design = "A B C"
 
 # Manually define fixed residue indices per chain TO DESIGN
 # If you want to define fixed resideu to EXCLUDE FROM DESIGN, TURN OFF "--specify_non_fixed" in Make fixed position step
-fixed_positions_per_chain = "1 2 3 4 5 6, ," #only designing residues listed here, chain A
+#only designing residues listed here, chain A
+fixed_positions_per_chain = "382 406 306 401 112 127 386 194 264 161 109 385 295 436 331 261 355 169 427 348 107 108 133 175 433 280, ," 
 
 mpnn_base = "/home/eva/ProteinMPNN"
 parse_script = os.path.join(mpnn_base, "helper_scripts/parse_multiple_chains.py")
