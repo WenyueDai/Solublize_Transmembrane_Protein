@@ -5,7 +5,8 @@
 3. step2_pyrosetta_map.py Use pyrosetta to repack sequence to the input pdb
 4. (TODO): chai-1 structural prediction
 5. (TODO) OPENMM OR Positioning of proteins in membranes
-6. Pipeline (CLI) and Reproducibility
+6. (TODO) Pipeline step0-1-2 to allow dynamic selection of cutoff residues
+7. (TODO) Reproducibility
 
 # Instruction for new starters
 ## step 0. Common bash script used in terminal
