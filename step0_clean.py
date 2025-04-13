@@ -9,8 +9,9 @@ from openmm.app import PDBFile
 # To download pdb directly from pdb database
 # curl -O https://files.rcsb.org/download/7kp4.pdb
 
+# ========== USER SETTINGS ==========
+
 folder_with_pdbs = "/home/eva/0_solubilize_transmembrane/7KP4_2" #Change it to the folder where pdb is downloaded
-clean_pdbs_dir = os.path.join(folder_with_pdbs, "clean") #The folder with cleaned pdb
 chains_to_keep = "A,B" #Chain to keep during pdb clean up. Change to A will delete all the other chains.
 chain_to_cal_hydro_sasa = "A" #Chain to calculate hydrophobic and sasa, can analysis multiple chain like A,B
 
@@ -19,6 +20,9 @@ sasa_threshold=0.3
 hydro_threshold=0
 hydro_sasa_threthod=0.1
 
+# ========== Dont change ==========
+
+clean_pdbs_dir = os.path.join(folder_with_pdbs, "clean") #The folder with cleaned pdb
 os.makedirs(clean_pdbs_dir, exist_ok=True)
 
 # ========== STRUCTURE CLEANING FUNCTIONS ==========

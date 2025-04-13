@@ -11,9 +11,13 @@ pyrosetta.init("-mute all")
 
 # conda activate getcontact
 
-# ========== USER CONFIG ==========
-fasta_path = "/home/eva/0_solubilize_transmembrane/7KP4_2/output/seqs/7KP4.fa"
-pdb_path = "/home/eva/0_solubilize_transmembrane/7KP4_2/7KP4.pdb"
+# ========== USER SETTINGS ==========
+
+fasta_path = "/home/eva/0_solubilize_transmembrane/7KP4_2/output/seqs/7KP4.fa" # The .fa generated from mpnn
+pdb_path = "/home/eva/0_solubilize_transmembrane/7KP4_2/clean/7KP4.pdb" # The path to cleaned pdb
+
+# ========== DONT CHANGE ==========
+
 output_folder = "/home/eva/0_solubilize_transmembrane/6LN2/output/seqs/mutated_pdb"
 
 def one_letter_to_three(letter):
