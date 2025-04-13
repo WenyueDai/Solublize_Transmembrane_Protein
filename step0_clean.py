@@ -225,6 +225,8 @@ def analyze_sasa_and_hydrophobicity(obj_name, output_txt_path, chains_to_analyze
     for chain in sorted(chain_resi_list):
         resi_list = " ".join(str(r) for r in chain_resi_list[chain])
         print(f'  "{chain}": [{resi_list}]')
+        resi_list_pymol = "+".join(str(r) for r in chain_resi_list[chain])
+        print(f'  "{chain}": [{resi_list_pymol}]')
 
     with open(output_txt_path, 'w') as f:
         f.write("sasa_threshold=0.5, hydro_threshold=0, hydro_sasa_threthod=0.2")
