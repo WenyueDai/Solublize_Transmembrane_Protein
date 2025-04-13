@@ -12,8 +12,8 @@ pyrosetta.init("-mute all")
 # conda activate getcontact
 
 # ========== USER CONFIG ==========
-fasta_path = "/home/eva/0_solubilize_transmembrane/6LN2/output/seqs/6LN2.fa"
-pdb_path = "/home/eva/0_solubilize_transmembrane/6LN2/clean/6LN2.pdb"
+fasta_path = "/home/eva/0_solubilize_transmembrane/7KP4_2/output/seqs/7KP4.fa"
+pdb_path = "/home/eva/0_solubilize_transmembrane/7KP4_2/7KP4.pdb"
 output_folder = "/home/eva/0_solubilize_transmembrane/6LN2/output/seqs/mutated_pdb"
 
 def one_letter_to_three(letter):

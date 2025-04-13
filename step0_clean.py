@@ -7,12 +7,17 @@ from openmm.app import PDBFile
 
 # conda activate mlfold
 # To download pdb directly from pdb database
-# curl -O https://files.rcsb.org/download/6LN2.pdb
+# curl -O https://files.rcsb.org/download/7kp4.pdb
 
-folder_with_pdbs = "/home/eva/0_solubilize_transmembrane/6LN2" #Change it to the folder where pdb is downloaded
+folder_with_pdbs = "/home/eva/0_solubilize_transmembrane/7KP4_2" #Change it to the folder where pdb is downloaded
 clean_pdbs_dir = os.path.join(folder_with_pdbs, "clean") #The folder with cleaned pdb
-chains_to_keep = "A,B,C,D,E,F,G,H" #Chain to keep during pdb clean up. Change to A will delete all the other chains.
+chains_to_keep = "A,B" #Chain to keep during pdb clean up. Change to A will delete all the other chains.
 chain_to_cal_hydro_sasa = "A" #Chain to calculate hydrophobic and sasa, can analysis multiple chain like A,B
+
+# change to get a different range of residue fit hydrophobic * sasa
+sasa_threshold=0.3
+hydro_threshold=0
+hydro_sasa_threthod=0.1
 
 os.makedirs(clean_pdbs_dir, exist_ok=True)
 
@@ -250,6 +255,6 @@ for cleaned_file in os.listdir(clean_pdbs_dir):
         obj_name = os.path.splitext(cleaned_file)[0]
         output_txt = pdb_path.replace(".pdb", "_sasa_hydro.txt")
         cmd.load(pdb_path, obj_name)
-        analyze_sasa_and_hydrophobicity(obj_name, output_txt, chains_to_analyze=chain_to_cal_hydro_sasa)
+        analyze_sasa_and_hydrophobicity(obj_name, output_txt, chains_to_analyze=chain_to_cal_hydro_sasa, sasa_threshold=sasa_threshold, hydro_threshold=hydro_threshold, hydro_sasa_threthod=hydro_sasa_threthod)
 
 
