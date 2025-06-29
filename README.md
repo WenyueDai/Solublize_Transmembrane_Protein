@@ -1,7 +1,3 @@
-Great — let’s break this README into a **friendly step-by-step tutorial style**, with clear sections for each stage and beginner-friendly guidance. Here’s a polished version you can use:
-
----
-
 # **Transmembrane Protein Solubilization & Repacking Pipeline**
 
 This project provides a pipeline for redesigning and repacking transmembrane proteins to make them soluble and structurally optimized.
