@@ -1,66 +1,226 @@
+Great — let’s break this README into a **friendly step-by-step tutorial style**, with clear sections for each stage and beginner-friendly guidance. Here’s a polished version you can use:
 
-# Description
-1. step0_clean.py clean and renumber pdb/cif; Calculate and show residue index above hydrophobic * sasa cutoff.
-2. step1_solublempnn_fix.py Use solubleMPNN to redesign transmembrane protein (non-fixed position)
-3. step2_pyrosetta_map.py Use pyrosetta to repack sequence to the input pdb
-4. (TODO): chai-1 structural prediction
-5. (TODO) OPENMM OR Positioning of proteins in membranes
-6. (TODO) Pipeline step0-1-2 to allow dynamic selection of cutoff residues
-7. (TODO) Reproducibility
+---
 
-# Instruction for new starters
-## step 0. Common bash script used in terminal
-1. conda create -n $ENV_NAME python=$PYTHON_VER -y
-2. conda activate $ENV_NAME
-3. conda deactivate $ENV_NAME
-4. cd test # go to test folder
-5. cd .. # go one directory level up
-6. cd ~ # go to your home directory
-5. ls -a # list all files (including hidden ones)
-6. pwd # Print the current working directory (where you are).
-6. find . -name "*.pdb" # Find All .pdb Files Recursively
-7. mkdir test_folder # Make a test_folder folder
-8. nvidia-smi # Check GPU availablility
+# **Transmembrane Protein Solubilization & Repacking Pipeline**
 
+This project provides a pipeline for redesigning and repacking transmembrane proteins to make them soluble and structurally optimized.
 
-## step 1. VScode with wsl
-1. Search for powershell, run as administrator.
-2. wsl --install #Run this to install wsl and ubuntus (default)
-3. Set ubuntus as default terminal backend (only work for window 11 above)
-4. reboot the computer
-5. In ubuntus terminal run: sudo apt update && sudo apt upgrade -y #update system to latest package
-6. Go to: https://code.visualstudio.com, download VScode
-7. During install: "Add to PATH""Add ‘Open with Code’ to context menu""Register VS Code as default editor"
-8. In VScode, go to extension tab: Ctrl+Shift+X
-9. Search for WSL, Python, Jupyter, Pylance
-10. In ubuntu terminal, create test folder: 
-mkdir -p ~/test_project cd ~/test_project
-11. Download conda wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-12. Run installer: bash Miniconda3-latest-Linux-x86_64.sh
-13. Restart terminal: source ~/.bashrc
-14. Set up git: sudo apt install git -y
-git config --global user.name "Your Name"
-git config --global user.email "your@email.com"
+---
 
-## step 2. conda env mlfold for pdb preparation and solublempnn
-1. conda create -n mlfold python=3.10 -y
-2. conda activate mlfold 
-3. conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
-4. pip install numpy biopython pandas tqdm matplotlib
-5. conda install -c conda-forge openmm pdbfixer -y
-6. conda install -c conda-forge pymol-open-source -y
-7. Download ProteinMPNN to local: git clone https://github.com/dauparas/ProteinMPNN.git
-8. To run the step0_clean.py and step1_solublempnn.py:
-- conda activate mlfold
-- python /home/eva/0_solubilize_transmembrane/step0_clean.py
-- python /home/eva/0_solubilize_transmembrane/step1_solublempnn_fix.py
+# **Pipeline Steps Overview**
 
-## step 3. conda env getcontact for pyrosetta repack
-Go to https://www.pyrosetta.org/downloads/windows-10 for pyrosetta
-1. conda create -n pyrosetta python=3.10 -y
-2. conda activate pyrosetta
-3. pip install pyrosetta-installer 
-4. python -c 'import pyrosetta_installer; pyrosetta_installer.install_pyrosetta()'
-5. To run the step2_pyrosetta_map.py:
-- conda activate pyrosetta
-- python /home/eva/0_solubilize_transmembrane/step2_pyrosetta_map.py
+| Step | Script                     | Purpose                                                                             |
+| ---- | -------------------------- | ----------------------------------------------------------------------------------- |
+| 0    | `step0_clean.py`           | Clean and renumber PDB/CIF files; identify residues with high hydrophobicity × SASA |
+| 1    | `step1_solublempnn_fix.py` | Use ProteinMPNN (soluble model) to redesign the sequence, fixing specified residues |
+| 2    | `step2_pyrosetta_map.py`   | Repack the redesigned sequence into the cleaned PDB structure using PyRosetta       |
+| 3    | *(planned)*                | CHAI-1 structural prediction                                                        |
+| 4    | *(planned)*                | OpenMM or membrane positioning                                                      |
+| 5    | *(planned)*                | Pipeline integration with dynamic residue cutoff selection                          |
+| 6    | *(planned)*                | Full reproducibility tracking                                                       |
+
+---
+
+# **Beginner-Friendly Step-by-Step Guide**
+
+---
+
+## **Step 0 — Set Up Your Linux Development Environment (WSL + Conda + VS Code)**
+
+**Windows 11** users can use WSL (Windows Subsystem for Linux) to get a Linux-like environment:
+
+1. **Open PowerShell** (as administrator):
+
+   ```powershell
+   wsl --install
+   ```
+
+   (this installs Ubuntu by default)
+
+2. **Restart your computer**
+
+3. In the Ubuntu terminal, update packages:
+
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   ```
+
+4. **Download and install VS Code** from [Visual Studio Code](https://code.visualstudio.com)
+
+   * During installation, check:
+
+     * *Add to PATH*
+     * *Add “Open with Code” to context menu*
+     * *Register VS Code as default editor*
+
+5. In VS Code:
+
+   * Press `Ctrl+Shift+X`
+   * Install these extensions:
+
+     * **WSL**
+     * **Python**
+     * **Jupyter**
+     * **Pylance**
+
+1. You are now ready to code in Linux via VS Code!
+
+---
+
+## **Step 1 — Prepare Your Conda Environment for PDB Cleaning & ProteinMPNN**
+
+1. In your Ubuntu terminal:
+
+   ```bash
+   wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+   bash Miniconda3-latest-Linux-x86_64.sh
+   source ~/.bashrc
+   ```
+
+2. Create your project folder:
+
+   ```bash
+   mkdir -p ~/protein_project && cd ~/protein_project
+   ```
+
+3. Set up the environment:
+
+   ```bash
+   conda create -n mlfold python=3.10 -y
+   conda activate mlfold
+   ```
+
+4. Install required packages:
+
+   ```bash
+   conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+   pip install numpy biopython pandas tqdm matplotlib
+   conda install -c conda-forge openmm pdbfixer pymol-open-source
+   ```
+
+5. **Download ProteinMPNN**:
+
+   ```bash
+   git clone https://github.com/dauparas/ProteinMPNN.git
+   ```
+
+---
+
+## **Step 2 — Clean Your PDB/CIF Files (`step0_clean.py`)**
+
+1. Place your downloaded `.pdb` or `.cif` file in your working folder (e.g., `~/protein_project/inputs`).
+
+   * You can download directly, for example:
+
+     ```bash
+     curl -O https://files.rcsb.org/download/7kp4.pdb
+     ```
+
+2. Edit the `step0_clean.py` script to point to your folder (e.g., `/home/eva/protein_project/inputs`) and set:
+
+   * `chains_to_keep`
+   * `sasa_threshold`
+   * `hydro_threshold`
+
+3. Run the cleaner:
+
+   ```bash
+   conda activate mlfold
+   python step0_clean.py
+   ```
+
+1. *This will create cleaned structures in a `clean` folder and report residues with high hydrophobicity × SASA.*
+
+---
+
+## **Step 3 — Redesign with ProteinMPNN (`step1_solublempnn_fix.py`)**
+
+1. Edit `step1_solublempnn_fix.py`:
+
+   * Set `folder_with_pdbs` to the cleaned folder path
+   * Adjust `chain_to_design` and `fixed_positions_per_chain` as needed
+
+2. Run:
+
+   ```bash
+   conda activate mlfold
+   python step1_solublempnn_fix.py
+   ```
+
+1. *This will redesign sequences with the ProteinMPNN soluble model and output new sequences to an `output` folder.*
+
+---
+
+## **Step 4 — Repack with PyRosetta (`step2_pyrosetta_map.py`)**
+
+1. Install PyRosetta following instructions for [PyRosetta Windows 10+](https://www.pyrosetta.org/downloads/windows-10)
+
+2. Create and activate the environment:
+
+   ```bash
+   conda create -n pyrosetta python=3.10 -y
+   conda activate pyrosetta
+   pip install pyrosetta-installer
+   python -c 'import pyrosetta_installer; pyrosetta_installer.install_pyrosetta()'
+   ```
+
+3. Edit `step2_pyrosetta_map.py`:
+
+   * Update `fasta_path` to the `.fa` from step 1
+   * Update `pdb_path` to the cleaned structure
+
+4. Run:
+
+   ```bash
+   conda activate pyrosetta
+   python step2_pyrosetta_map.py
+   ```
+
+1. *This repacks the redesigned sequence into the PDB coordinates.*
+
+---
+
+## **Step 5 — Future Plans**
+
+1. Integrate CHAI-1 structural prediction
+2. Add OpenMM or membrane-positioning functionality
+3. Allow dynamic cutoff residue selection across the entire workflow
+4. Improve reproducibility tracking
+
+---
+
+# **Basic Command-Line Reminders**
+
+* **activate environment**:
+
+  ```bash
+  conda activate mlfold
+  ```
+* **list files including hidden**:
+
+  ```bash
+  ls -a
+  ```
+* **check GPU**:
+
+  ```bash
+  nvidia-smi
+  ```
+* **find all .pdb recursively**:
+
+  ```bash
+  find . -name "*.pdb"
+  ```
+* **print working directory**:
+
+  ```bash
+  pwd
+  ```
+* **make a new folder**:
+
+  ```bash
+  mkdir myfolder
+  ```
+
+---
