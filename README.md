@@ -12,7 +12,7 @@ This project provides a pipeline for redesigning and repacking transmembrane pro
 | 1    | `step1_solublempnn_fix.py` | Use ProteinMPNN (soluble model) to redesign the sequence, fixing specified residues |
 | 2    | `step2_pyrosetta_map.py`   | Repack the redesigned sequence into the cleaned PDB structure using PyRosetta       |
 | 3    | *(planned)*                | CHAI-1 structural prediction                                                        |
-| 4    | *(planned)*                | OpenMM or membrane positioning                                                      |
+| 4    | *(planned)*                | Membrane positioning                                                      |
 | 5    | *(planned)*                | Pipeline integration with dynamic residue cutoff selection                          |
 | 6    | *(planned)*                | Full reproducibility tracking                                                       |
 
